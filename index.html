@@ -727,6 +727,9 @@ body{
     </div>
     <div class="sec-head"><h2>📖 Your Answers, Side by Side</h2><div class="sec-line"></div></div>
     <div class="compare-list" id="compare-list"></div>
+    <div class="sec-head"><h2>💡 Insights & Path to Alignment</h2><div class="sec-line"></div></div>
+    <p class="txt-sm txt-mut" style="margin-bottom:12px">Tailored, science-backed guidance to strengthen your alignment in key areas:</p>
+    <div class="compare-list" id="insights-list" style="gap:12px;"></div>
     <div class="sec-head"><h2>💬 Conversation Checklist</h2><div class="sec-line"></div></div>
     <p class="txt-sm txt-mut" style="margin-bottom:12px">Check off each topic as you discuss it together.</p>
     <div class="checklist" id="checklist"></div>
@@ -1479,11 +1482,83 @@ function buildResults(){
     const badgeL=sc>=70?'Aligned':sc>=45?'Discuss':'Diverge';
     return`<div class="cmp-row"><div class="cmp-side"><div class="cmp-nm">${S.myName}</div>${fmtAns(my)}</div><div class="cmp-mid"><div class="cmp-badge ${badge}">${badgeL}</div><div class="cmp-topic">${q.q.slice(0,28)}…</div></div><div class="cmp-side"><div class="cmp-nm">${S.partnerName}</div>${fmtAns(them)}</div></div>`;
   }).join('');
+  // Insights
+  const insights = buildInsights(catScores);
+  $('insights-list').innerHTML = insights.map(i => `
+    <div style="padding:16px; border-radius:var(--rsm); background:var(--surf); border:1px solid var(--bdr); display:flex; flex-direction:column; gap:6px;">
+      <div style="font-size:13px; font-weight:600; color:var(--rose);">${i.topic}</div>
+      <div style="font-size:12px; color:var(--text2); line-height:1.6;">${i.tip}</div>
+    </div>
+  `).join('');
   // Checklist
   const topics=buildTopics(catScores);
   $('checklist').innerHTML=topics.map(t=>`<div class="chk" onclick="this.classList.toggle('done')"><div class="chk-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="chk-tx">${t}</div></div>`).join('');
   go('sr-results');
   setTimeout(()=>document.querySelectorAll('.cat-fill').forEach(el=>el.style.width=el.dataset.t+'%'),400);
+}
+function buildInsights(cs){
+  const ins = [];
+  if((cs.comm||68)<70){
+    ins.push({
+      topic: '💬 Communication Strategy (Speaker-Listener Technique)',
+      tip: 'When discussing hot topics, have one partner speak and express their feelings while the other partner simply listens and summarizes back what they heard before responding. This eliminates defensive counter-arguments.'
+    });
+  }
+  if((cs.money||68)<70){
+    ins.push({
+      topic: '💰 Financial Harmony (Budget Dates)',
+      tip: 'Establish a monthly "Money Date" — make it a low-stress ritual (accompanied by dinner or coffee) to review joint saving goals and upcoming spending, rather than waiting for an argument to bring it up.'
+    });
+  }
+  if((cs.emotional||68)<70){
+    ins.push({
+      topic: '🫀 Emotional Safety (Daily Rose & Thorn)',
+      tip: 'Increase emotional intimacy by sharing a "Rose" (the best part of your day) and a "Thorn" (a vulnerability or challenge you faced) every evening to foster consistent empathy.'
+    });
+  }
+  if((cs.family||68)<70){
+    ins.push({
+      topic: '🏠 Family Boundaries (The Privacy Blueprint)',
+      tip: 'Co-create a privacy policy: explicitly align on what details of your relationship (e.g. disagreements, personal budgets, future plans) stay strictly between the two of you versus what can be shared with parents or friends.'
+    });
+  }
+  if((cs.children||68)<70){
+    ins.push({
+      topic: '🌱 Parenting Values Alignment',
+      tip: 'Focus on your own childhood experiences. Discuss what practices you loved and want to replicate, and what parenting styles you consciously choose to break away from.'
+    });
+  }
+  if((cs.lifestyle||68)<70){
+    ins.push({
+      topic: '🌿 Lifestyle Coexistence',
+      tip: 'Respect differences in sleep cycles or personal interests by creating "Shared & Solo Zones". Allow each other space for solo hobbies, while establishing at least one weekly habit done strictly together.'
+    });
+  }
+  if((cs.vision||68)<70){
+    ins.push({
+      topic: '🌅 Future Vision Mapping',
+      tip: 'Independently write out your idea of a "Perfect Tuesday" in 5 years, detailing where you live, what you do, and how you spend the evening. Read them to each other to locate overlapping dreams.'
+    });
+  }
+  if((cs.career||68)<70){
+    ins.push({
+      topic: '🚀 Career Integration Protocol',
+      tip: 'Discuss how you will make geographic or career decisions. Agree on a "Pivoting Threshold" (e.g. financial security, happiness) that would justify one partner shifting careers for the benefit of the family unit.'
+    });
+  }
+  if((cs.values||68)<70){
+    ins.push({
+      topic: '🌟 Non-Negotiable Core Values',
+      tip: 'Respect core values where you differ. Ensure you establish policies of non-interference for beliefs that do not overlap, validating each other\'s perspectives even when you disagree.'
+    });
+  }
+  if(ins.length === 0){
+    ins.push({
+      topic: '🌿 Sustaining High Alignment',
+      tip: 'Your values and communication styles are highly compatible! Continue to protect this strong connection by scheduling a regular alignment check-in every 6 months to ensure you do not slip into passive complacency.'
+    });
+  }
+  return ins;
 }
 function buildTopics(c){
   const t=[];
@@ -1521,7 +1596,8 @@ function exportPDF(){
   const{catScores,overall}=scoreAll();
   const win=window.open('','_blank');
   if(!win){toast('Allow pop-ups to export PDF');return;}
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Vow Report — ${S.myName} & ${S.partnerName}</title><style>body{font-family:Georgia,serif;color:#1a1a1a;max-width:720px;margin:40px auto;padding:40px;line-height:1.7}.score{font-size:64px;font-weight:700;color:#C9907A}.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}.bar-lbl{width:130px;font-size:13px}.bar-track{flex:1;height:7px;background:#eee;border-radius:99px;overflow:hidden}.bar-fill{height:100%;background:#C9907A;border-radius:99px}.bar-pct{font-size:13px;font-weight:600;color:#C9907A;width:36px;text-align:right}.flag{padding:12px 14px;margin-bottom:7px;border-radius:6px;font-size:13px}.g{background:#f0f7f0;border-left:3px solid #7EC47A}.a{background:#fdf7ed;border-left:3px solid #DDB97A}.r{background:#fdf0f0;border-left:3px solid #F08080}.chk{padding:9px 0;border-bottom:1px solid #f0f0f0;font-size:13px}.close{background:#fdf9f6;border:1px solid #e8d5c5;border-radius:8px;padding:22px;margin-top:36px;text-align:center;font-style:italic}@media print{body{margin:0;padding:20px}}</style></head><body><p style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase">Vow — Relationship Due Diligence</p><h1 style="margin:4px 0;font-size:28px">${S.myName} & ${S.partnerName}</h1><p style="color:#888;font-size:13px">${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</p><div class="score">${overall}%</div><p style="font-size:16px;color:#666;margin-top:6px">${tagline(overall)}</p><h2 style="margin:28px 0 14px;font-size:18px;border-bottom:1px solid #eee;padding-bottom:8px">By Category</h2>${CATS.map(cat=>`<div class="bar-row"><div class="bar-lbl">${cat.lbl}</div><div class="bar-track"><div class="bar-fill" style="width:${catScores[cat.k]||68}%"></div></div><div class="bar-pct">${catScores[cat.k]||68}%</div></div>`).join('')}<h2 style="margin:28px 0 14px;font-size:18px;border-bottom:1px solid #eee;padding-bottom:8px">Discussion Topics</h2>${buildTopics(catScores).map(t=>`<div class="chk">☐ ${t}</div>`).join('')}<div class="close">"This assessment measures compatibility, not destiny.<br>Relationships succeed through mutual effort, honesty, respect, and growth."</div></body></html>`);
+  const insights = buildInsights(catScores);
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Vow Report — ${S.myName} & ${S.partnerName}</title><style>body{font-family:Georgia,serif;color:#1a1a1a;max-width:720px;margin:40px auto;padding:40px;line-height:1.7}.score{font-size:64px;font-weight:700;color:#C9907A}.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}.bar-lbl{width:130px;font-size:13px}.bar-track{flex:1;height:7px;background:#eee;border-radius:99px;overflow:hidden}.bar-fill{height:100%;background:#C9907A;border-radius:99px}.bar-pct{font-size:13px;font-weight:600;color:#C9907A;width:36px;text-align:right}.flag{padding:12px 14px;margin-bottom:7px;border-radius:6px;font-size:13px}.g{background:#f0f7f0;border-left:3px solid #7EC47A}.a{background:#fdf7ed;border-left:3px solid #DDB97A}.r{background:#fdf0f0;border-left:3px solid #F08080}.chk{padding:9px 0;border-bottom:1px solid #f0f0f0;font-size:13px}.insight-card{padding:12px 14px;margin-bottom:10px;border-radius:6px;background:#fafafa;border:1px solid #eaeaea}.insight-title{font-size:13px;font-weight:600;color:#C9907A;margin-bottom:4px}.insight-text{font-size:12px;color:#555;line-height:1.5}.close{background:#fdf9f6;border:1px solid #e8d5c5;border-radius:8px;padding:22px;margin-top:36px;text-align:center;font-style:italic}@media print{body{margin:0;padding:20px}}</style></head><body><p style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase">Vow — Relationship Due Diligence</p><h1 style="margin:4px 0;font-size:28px">${S.myName} & ${S.partnerName}</h1><p style="color:#888;font-size:13px">${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</p><div class="score">${overall}%</div><p style="font-size:16px;color:#666;margin-top:6px">${tagline(overall)}</p><h2 style="margin:28px 0 14px;font-size:18px;border-bottom:1px solid #eee;padding-bottom:8px">By Category</h2>${CATS.map(cat=>`<div class="bar-row"><div class="bar-lbl">${cat.lbl}</div><div class="bar-track"><div class="bar-fill" style="width:${catScores[cat.k]||68}%"></div></div><div class="bar-pct">${catScores[cat.k]||68}%</div></div>`).join('')}<h2 style="margin:28px 0 14px;font-size:18px;border-bottom:1px solid #eee;padding-bottom:8px">💡 Path to Alignment (Actionable Insights)</h2>${insights.map(i=>`<div class="insight-card"><div class="insight-title">${i.topic}</div><div class="insight-text">${i.tip}</div></div>`).join('')}<h2 style="margin:28px 0 14px;font-size:18px;border-bottom:1px solid #eee;padding-bottom:8px">Discussion Topics</h2>${buildTopics(catScores).map(t=>`<div class="chk">☐ ${t}</div>`).join('')}<div class="close">"This assessment measures compatibility, not destiny.<br>Relationships succeed through mutual effort, honesty, respect, and growth."</div></body></html>`);
   win.document.close();setTimeout(()=>win.print(),500);
 }
 
