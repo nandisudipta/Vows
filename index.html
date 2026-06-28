@@ -15,47 +15,47 @@
    Surface borders brightened to .14 alpha
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 :root{
-  --bg:#0C0C16;
-  --bg2:#141420;
-  --bg3:#1C1C2C;
-  --surf:rgba(255,255,255,0.05);
-  --surf2:rgba(255,255,255,0.09);
-  --surf3:rgba(255,255,255,0.13);
-  --bdr:rgba(255,255,255,0.12);
-  --bdr2:rgba(255,255,255,0.20);
-  --text:#F4F1EC;        /* 16:1 on bg */
-  --text2:#B8B5C0;       /* 7.2:1 on bg */
-  --text3:#7A788A;       /* 4.5:1 on bg */
-  --rose:#E8A882;        /* 4.6:1 on bg — was too dim before */
+  --bg:#05050A; /* Premium credit level dark */
+  --bg2:#0F0F1A;
+  --bg3:#161626;
+  --surf:rgba(255,255,255,0.03);
+  --surf2:rgba(255,255,255,0.06);
+  --surf3:rgba(255,255,255,0.1);
+  --bdr:rgba(255,255,255,0.08);
+  --bdr2:rgba(255,255,255,0.15);
+  --text:#F5F5F7;
+  --text2:#A1A1AA;
+  --text3:#71717A;
+  --rose:#E8A882;
   --rose-dim:rgba(232,168,130,0.18);
   --rose-sel:rgba(232,168,130,0.22);
-  --gold:#DDB97A;        /* 4.5:1 on bg */
+  --gold:#DDB97A;
   --gold-dim:rgba(221,185,122,0.15);
-  --sage:#7EC47A;        /* 4.6:1 on bg */
+  --sage:#7EC47A;
   --sage-dim:rgba(126,196,122,0.15);
-  --danger:#F08080;      /* 5.2:1 on bg */
+  --danger:#F08080;
   --danger-dim:rgba(240,128,128,0.15);
   --r:18px; --rsm:12px;
   --shadow:0 32px 80px rgba(0,0,0,0.6);
   --ease:cubic-bezier(0.23,1,0.32,1);
 }
 [data-theme=light]{
-  --bg:#F8F4EE;
-  --bg2:#F0EAE0;
-  --bg3:#E8DFD3;
-  --surf:rgba(0,0,0,0.04);
-  --surf2:rgba(0,0,0,0.07);
-  --surf3:rgba(0,0,0,0.11);
-  --bdr:rgba(0,0,0,0.12);
-  --bdr2:rgba(0,0,0,0.22);
-  --text:#1A1820;
-  --text2:#4A4858;
-  --text3:#888099;
-  --rose:#B5724E;        /* darkened for light bg — 4.8:1 */
-  --rose-dim:rgba(181,114,78,0.12);
-  --rose-sel:rgba(181,114,78,0.16);
-  --gold:#9A7830;
-  --gold-dim:rgba(154,120,48,0.12);
+  --bg:#F5F5F7; /* Apple level white */
+  --bg2:#FFFFFF;
+  --bg3:#E5E5EA;
+  --surf:rgba(0,0,0,0.02);
+  --surf2:rgba(0,0,0,0.04);
+  --surf3:rgba(0,0,0,0.08);
+  --bdr:rgba(0,0,0,0.08);
+  --bdr2:rgba(0,0,0,0.14);
+  --text:#1C1C1E;
+  --text2:#48484A;
+  --text3:#8E8E93;
+  --rose:#C97A53;
+  --rose-dim:rgba(201,122,83,0.12);
+  --rose-sel:rgba(201,122,83,0.16);
+  --gold:#A37836;
+  --gold-dim:rgba(163,120,54,0.12);
   --sage:#3A8A36;
   --sage-dim:rgba(58,138,54,0.12);
   --danger:#C04040;
@@ -1194,6 +1194,17 @@ function renderQ(idx){
   if(idx>=TOTAL){finishAssessment();return;}
   const q=QS[idx];
   S.qIdx=idx;save();
+
+  // Dynamic theme transition at 50% progress
+  const half = Math.floor(TOTAL / 2);
+  const targetTheme = idx >= half ? 'light' : 'dark';
+  if(document.body.dataset.theme !== targetTheme){
+    document.body.dataset.theme = targetTheme;
+    S.theme = targetTheme;
+    save();
+    toast(targetTheme === 'light' ? "Entering second half: Light Mode (Apple White)" : "Entering first half: Dark Mode (Credit Dark)", 2500);
+  }
+
   $('q-pill').textContent=q.em+' '+q.sec;
   $('q-hed').textContent=q.q;
   $('q-sub').textContent=q.sub||'';

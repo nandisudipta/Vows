@@ -6,9 +6,9 @@ const path = require('path');
 
   const viewport = { width: 1280, height: 1024 };
 
-  // Launch browser with standard desktop viewport
-  const browserA = await puppeteer.launch({ headless: true, defaultViewport: viewport });
-  const browserB = await puppeteer.launch({ headless: true, defaultViewport: viewport });
+  // Launch browser with standard desktop viewport visibly (headless: false)
+  const browserA = await puppeteer.launch({ headless: false, slowMo: 100, defaultViewport: viewport });
+  const browserB = await puppeteer.launch({ headless: false, slowMo: 100, defaultViewport: viewport });
 
   const pageA = await browserA.newPage();
   const pageB = await browserB.newPage();
@@ -120,8 +120,8 @@ const path = require('path');
         console.log(`  [${name}] Answered ${q}/${totalQuestions} questions...`);
       }
       
-      // Brief pause to mimic user speed
-      await new Promise(r => setTimeout(r, 50));
+      // Brief pause to mimic user speed and let the user see the transition
+      await new Promise(r => setTimeout(r, 600));
     }
   };
 
