@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Vow — A thoughtful relationship compatibility assessment. Answer 50 curated questions independently, then reveal your results together.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
 <title>Vow — Know Before You Commit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -525,7 +527,7 @@ body{
       <button class="btn btn-primary btn-lg" onclick="beginTogether()">Begin Together</button>
       <button class="btn btn-sec btn-lg" onclick="go('sr-how')">How it Works</button>
     </div>
-    <p class="land-note">Private · Offline · No data leaves your device</p>
+    <p class="land-note">Private · End-to-end sync via Firebase · No login required</p>
   </div>
 </div>
 
@@ -588,6 +590,10 @@ body{
     <div id="fl-join" class="hidden">
       <div class="form-row"><label class="form-lbl">Your name</label><input class="input" id="jn-me" placeholder="e.g. Priya" maxlength="25"></div>
       <div class="form-row"><label class="form-lbl">Session code</label><input class="input code-input" id="jn-code" placeholder="ABC123" maxlength="6" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="form-row">
+        <label class="form-lbl">Shared PIN</label>
+        <input class="input" id="jn-pin" placeholder="e.g. 2847" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="letter-spacing:6px;font-size:20px;text-align:center">
+      </div>
       <button class="btn btn-primary w-full mt3" onclick="joinSession()">Join →</button>
     </div>
     <div class="sep"><div class="sep-line"></div><div class="sep-txt">or</div><div class="sep-line"></div></div>
@@ -916,6 +922,8 @@ const CATS = [
 const $=id=>document.getElementById(id);
 
 function beginTogether(){
+  if(window._resultsReady){ window._resultsReady=false; buildResults(); return; }
+  if(window._resumeMode){ window._resumeMode=false; startAssessment(); return; }
   go('sr-connect');
 }
 
@@ -1008,8 +1016,19 @@ function genUUID(){
 // Hash PIN with session UUID so the stored hash reveals nothing standalone
 async function hashPin(pin, uuid){
   const msg = new TextEncoder().encode(pin + ':' + uuid);
-  const buf = await crypto.subtle.digest('SHA-256', msg);
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,32);
+  // crypto.subtle requires HTTPS — provide fallback for file:// or HTTP
+  if(window.crypto && crypto.subtle){
+    const buf = await crypto.subtle.digest('SHA-256', msg);
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,32);
+  }
+  // Simple fallback hash (DJB2-inspired) for non-secure contexts
+  const s = pin + ':' + uuid;
+  let h1 = 5381, h2 = 52711;
+  for(let i = 0; i < s.length; i++){
+    h1 = ((h1 << 5) + h1 + s.charCodeAt(i)) >>> 0;
+    h2 = ((h2 << 5) + h2 + s.charCodeAt(i)) >>> 0;
+  }
+  return h1.toString(16).padStart(8,'0') + h2.toString(16).padStart(8,'0') + h1.toString(16).padStart(8,'0') + h2.toString(16).padStart(8,'0');
 }
 
 // ── CONNECT ──
@@ -1054,7 +1073,9 @@ async function createSession(){
 
 async function joinSession(){
   const me=$('jn-me').value.trim(), code=$('jn-code').value.trim().toUpperCase();
+  const pin=$('jn-pin').value.trim();
   if(!me||code.length!==6){toast('Enter your name and the 6-character code.');return;}
+  if(!pin||pin.length!==4||!/^\d{4}$/.test(pin)){toast('Enter the 4-digit shared PIN.');return;}
   const btn=$('jn-code').closest('.conn-box').querySelector('button.btn-primary');
   if(btn){btn.textContent='Joining…';btn.disabled=true;}
 
@@ -1071,6 +1092,14 @@ async function joinSession(){
   const sess = await fbGet('sessions/'+uuid);
   if(!sess){
     toast('Session not found. Check the code and try again.');
+    if(btn){btn.textContent='Join →';btn.disabled=false;}
+    return;
+  }
+
+  // Verify PIN
+  const hash = await hashPin(pin, uuid);
+  if(hash !== sess.pinHash){
+    toast('Incorrect PIN. Ask your partner for the correct PIN.');
     if(btn){btn.textContent='Join →';btn.disabled=false;}
     return;
   }
@@ -1136,7 +1165,8 @@ async function checkPin(){
     $('pin-err').textContent='Enter all 4 digits.'; return;
   }
   $('pin-err').textContent='Checking…';
-  const hash = await hashPin(entered, S.sessionUUID||S.sessionCode);
+  if(!S.sessionUUID){ $('pin-err').textContent='Session data missing. Please rejoin.'; return; }
+  const hash = await hashPin(entered, S.sessionUUID);
   if(hash === S.pinHash){
     $('pin-err').textContent='';
     ['pin-1','pin-2','pin-3','pin-4'].forEach(id=>$(id).value='');
@@ -1228,7 +1258,7 @@ function chipClick(id,val,multi,max){
     else{toast('Pick up to '+max);return;}
     S.answers[id]=cur;
   } else {
-    S.answers[id]=cur[0]===val?null:[val];
+    S.answers[id]=cur[0]===val?null:val;
   }
   save();buildInput(QS[S.qIdx]);
 }
@@ -1292,7 +1322,7 @@ function genPartnerAnswers(){
   const PA={};
   const SIMS={
     age:'28–32  Settling',
-    religion:{e:'✨',l:'Spiritual, not religious'},
+    religion:'Spiritual, not religious',
     education:"Master's",
     love_lang:['Quality time','Words of affirmation'],
     prev_rel:'Yes — significantly',
@@ -1308,8 +1338,8 @@ function genPartnerAnswers(){
     trust_rebuild:['Changed behavior over time','An honest explanation','Time — it just takes time'],
     triggers:['Silent treatment','Broken promises','Emotional unavailability'],
     emo_maturity:4,
-    therapy:'Open, would go if needed',
-    hurt_response:'Talk it out immediately',
+    therapy:'Open if we really needed it',
+    hurt_response:'Address it directly',
     why_marry:['Deep life partnership','Build a family & home'],
     life_5yr:['Settled in one city','Starting a family'],
     life_10yr:['Own a home','Kids in school'],
@@ -1470,7 +1500,8 @@ function drawRadar(cs){
   const dpts=CATS.map((cat,i)=>pt(i,r*(cs[cat.k]||68)/100));
   h+=`<polygon points="${dpts.map(p=>p.x+','+p.y).join(' ')}" fill="url(#rg)" stroke="#E8A882" stroke-width="1.5" opacity=".9"/>`;
   dpts.forEach(p=>{h+=`<circle cx="${p.x}" cy="${p.y}" r="3" fill="#E8A882"/>`;});
-  CATS.forEach((cat,i)=>{const p=pt(i,r+18);h+=`<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,0.38)" font-size="8" font-family="Inter">${cat.lbl.slice(0,9)}</text>`;});
+  const lblFill=document.body.dataset.theme==='light'?'rgba(0,0,0,0.45)':'rgba(255,255,255,0.38)';
+  CATS.forEach((cat,i)=>{const p=pt(i,r+18);h+=`<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" fill="${lblFill}" font-size="8" font-family="Inter">${cat.lbl.slice(0,9)}</text>`;});
   svg.innerHTML=h;
 }
 
@@ -1493,12 +1524,18 @@ function exportPDF(){
   }).catch(()=>{
     console.warn('Firebase unreachable');
   });
-  // Pre-fill Firebase URL if previously saved
+  // Check for resumable session — non-blocking with toast instead of confirm()
   if(S.qIdx>0&&S.qIdx<TOTAL&&S.myName){
-    if(confirm(`Resume where you left off, ${S.myName}? (Q${S.qIdx+1}/${TOTAL})`)){startAssessment();return;}
+    go('sr-land');
+    toast(`Welcome back, ${S.myName}! Tap \"Begin Together\" to resume Q${S.qIdx+1}/${TOTAL}`, 5000);
+    window._resumeMode = true;
+    return;
   }
   if(Object.keys(S.partnerAnswers).length>2&&S.myName){
-    if(confirm('Session complete. View results?')){buildResults();return;}
+    go('sr-land');
+    toast('Your session is ready! Tap \"Begin Together\" to see results.', 5000);
+    window._resultsReady = true;
+    return;
   }
   go('sr-land');
 })();
