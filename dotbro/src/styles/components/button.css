@@ -1,0 +1,80 @@
+.dotbro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-medium);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.dotbro-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Variants */
+.dotbro-btn--primary {
+  background-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.dotbro-btn--primary:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.dotbro-btn--primary:active:not(:disabled) {
+  background-color: var(--accent-active);
+}
+
+.dotbro-btn--secondary {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.dotbro-btn--secondary:hover:not(:disabled) {
+  background-color: var(--bg-hover);
+  border-color: var(--border-hover);
+}
+
+.dotbro-btn--ghost {
+  color: var(--text-secondary);
+}
+
+.dotbro-btn--ghost:hover:not(:disabled) {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.dotbro-btn--danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.dotbro-btn--danger:hover:not(:disabled) {
+  background-color: var(--error);
+  color: #ffffff;
+}
+
+/* Sizes */
+.dotbro-btn--sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+}
+
+.dotbro-btn--md {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-base);
+}
+
+.dotbro-btn--lg {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-lg);
+}
+
+.dotbro-btn--full {
+  width: 100%;
+}

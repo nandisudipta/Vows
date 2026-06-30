@@ -1,0 +1,31 @@
+.dotbro-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-8) var(--space-6);
+  flex: 1;
+}
+
+.dotbro-empty-state__icon {
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dotbro-empty-state__title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.dotbro-empty-state__description {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  max-width: 320px;
+  margin-bottom: var(--space-5);
+}

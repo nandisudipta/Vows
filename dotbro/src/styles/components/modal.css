@@ -1,0 +1,72 @@
+.dotbro-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn var(--transition-fast);
+}
+
+.dotbro-modal {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 500px;
+  max-width: 90vw;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp var(--transition-fast);
+}
+
+.dotbro-modal__header {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dotbro-modal__title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+}
+
+.dotbro-modal__close-btn {
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.dotbro-modal__close-btn:hover {
+  color: var(--text-primary);
+}
+
+.dotbro-modal__content {
+  padding: var(--space-5);
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+.dotbro-modal__actions {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

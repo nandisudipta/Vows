@@ -1,0 +1,55 @@
+.dotbro-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.dotbro-input-label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dotbro-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dotbro-input-icon {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.dotbro-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  transition: all var(--transition-fast);
+}
+
+.dotbro-input-wrapper--with-icon .dotbro-input {
+  padding-left: calc(var(--space-8) + var(--space-2));
+}
+
+.dotbro-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background-color: var(--bg-secondary);
+}
+
+.dotbro-input::placeholder {
+  color: var(--text-tertiary);
+}

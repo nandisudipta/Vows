@@ -1,0 +1,23 @@
+.dotbro-textarea {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  resize: none;
+  min-height: 40px;
+  line-height: 1.5;
+  transition: all var(--transition-fast);
+}
+
+.dotbro-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  background-color: var(--bg-secondary);
+}
+
+.dotbro-textarea::placeholder {
+  color: var(--text-tertiary);
+}
